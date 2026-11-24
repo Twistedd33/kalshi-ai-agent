@@ -18,17 +18,25 @@ export function teamMatches(kalshiName, bookName) {
 
 const teamFor = m => m.yes_sub_title || m.subtitle || '';
 
-export function findEdges(markets, games) {
+// A Kalshi event matches a sportsbook game when both book teams appear among the event's
+// market teams. Extra markets (e.g. 'Tie') are ignored.
+function matchGame(teams, games) {
+  return games.find(g => [g.home_team, g.away_team].every(n => teams.some(t => teamMatches(t, n))));
+}
+
+// Returns edges plus stats: events, matched, best (highest edge seen, even if below threshold).
+export function findEdges(markets, games, stats = {}) {
   const byEvent = Map.groupBy(markets, m => m.event_ticker);
   const edges = [];
+  Object.assign(stats, { events: byEvent.size, matched: 0, best: null });
   for (const eventMarkets of byEvent.values()) {
     const teams = eventMarkets.map(teamFor).filter(Boolean);
-    const game = games.find(g =>
-      teams.every(t => [g.home_team, g.away_team].some(n => teamMatches(t, n))));
+    const game = matchGame(teams, games);
     if (!game) continue;
 
     const { probs, books } = fairProbs(game);
     if (books < config.minBooks) continue;
+    stats.matched++;
 
     for (const m of eventMarkets) {
       const team = teamFor(m), ask = m._yesAsk;
@@ -36,6 +44,7 @@ export function findEdges(markets, games) {
       const entry = Object.entries(probs).find(([name]) => teamMatches(team, name));
       if (!entry) continue;
       const fair = entry[1], fee = kalshiFee(ask), edge = fair - ask - fee;
+      if (!stats.best || edge > stats.best.edge) stats.best = { team, ask, fair, edge };
       if (edge >= config.minEdge) {
         edges.push({ market: m, team, ask, fair, fee, edge, books,
           game: `${game.away_team} @ ${game.home_team}`, start: game.commence_time });

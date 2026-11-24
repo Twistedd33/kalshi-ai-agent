@@ -27,3 +27,19 @@ test('finds edge on underpriced side only', () => {
   assert.equal(edges[0].team, 'Buffalo');
   assert.ok(Math.abs(edges[0].edge - 0.054) < 0.002);
 });
+
+test('ignores extra Tie market when matching', () => {
+  const games = [{ id: 'g2', home_team: 'Buffalo Bills', away_team: 'Kansas City Chiefs',
+    bookmakers: [book(1.67, 2.25), book(1.65, 2.30), book(1.69, 2.20)] }];
+  const markets = [
+    { ticker: 'E-BUF', event_ticker: 'E', yes_sub_title: 'Buffalo', yes_ask: 50 },
+    { ticker: 'E-KC', event_ticker: 'E', yes_sub_title: 'Kansas City', yes_ask: 46 },
+    { ticker: 'E-TIE', event_ticker: 'E', yes_sub_title: 'Tie', yes_ask: 1 },
+  ];
+  for (const m of markets) m._yesAsk = price(m, 'yes_ask');
+  const stats = {};
+  const edges = findEdges(markets, games, stats);
+  assert.equal(stats.matched, 1);
+  assert.equal(edges.length, 1);
+  assert.ok(stats.best.edge > 0.05);
+});

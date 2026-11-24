@@ -25,8 +25,12 @@ async function scan() {
       const markets = await getOpenMarkets(series);
       if (!markets.length) { console.log(`${sport}: no open Kalshi markets`); continue; }
       const games = await getGames(oddsKey);
-      const edges = findEdges(markets, games);
-      console.log(`${sport}: ${markets.length} markets, ${games.length} games, ${edges.length} edges`);
+      const stats = {};
+      const edges = findEdges(markets, games, stats);
+      const b = stats.best;
+      console.log(`${sport}: ${markets.length} markets, ${games.length} games, ` +
+        `${stats.matched}/${stats.events} Kalshi games matched, ${edges.length} edges` +
+        (b ? ` | best: ${b.team} ask ${(b.ask * 100).toFixed(0)}¢ vs fair ${pct(b.fair)}% = ${b.edge >= 0 ? '+' : ''}${pct(b.edge)} pts` : ''));
       for (const e of edges) {
         const t = e.market.ticker, prev = alerted.get(t);
         if (prev !== undefined && e.edge < prev + config.realertStep) continue;
