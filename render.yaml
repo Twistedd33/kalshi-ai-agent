@@ -12,12 +12,12 @@ services:
       - key: NTFY_TOPIC
         sync: false
       - key: SPORTS
-        value: NFL,NBA,NHL
+        value: NFL
       - key: MIN_EDGE_PCT
         value: "4"
       - key: KALSHI_POLL_SECONDS
         value: "120"
       - key: ODDS_REFRESH_MINUTES
-        value: "60"
+        value: "120"
       - key: NODE_VERSION
         value: "22"
