@@ -1,0 +1,16 @@
+{
+  "name": "kalshi-sports-alerts",
+  "version": "1.0.0",
+  "description": "Alerts (via ntfy) when Kalshi sports game prices are below de-vigged sportsbook fair value",
+  "type": "module",
+  "main": "src/main.js",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node src/main.js",
+    "once": "node src/main.js --once",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}

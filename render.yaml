@@ -1,0 +1,23 @@
+services:
+  - type: worker
+    name: kalshi-sports-alerts
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: ODDS_API_KEY
+        sync: false
+      - key: NTFY_TOPIC
+        sync: false
+      - key: SPORTS
+        value: NFL,NBA,NHL
+      - key: MIN_EDGE_PCT
+        value: "4"
+      - key: KALSHI_POLL_SECONDS
+        value: "120"
+      - key: ODDS_REFRESH_MINUTES
+        value: "60"
+      - key: NODE_VERSION
+        value: "22"
